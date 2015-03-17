@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint
+    xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+      http://www.osgi.org/xmlns/blueprint/v1.0.0
+      http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint" xsi:schemaLocation="
+    http://camel.apache.org/schema/blueprint 
+    http://camel.apache.org/schema/blueprint/camel-blueprint.xsd" id="ehri">
+    
+      <endpoint id="ehribot" uri="xmpp:bot@localhost/?room=troep@conference.ben&amp;serviceName=ben&amp;nickname=ehriBot&amp;password=clerics481&quot;Turin&amp;resource=EHRI-queue" />
+      <route id="unwrap">
+        <from uri="file:///Users/ben/Applications/repox/repoxData/export/wienerlib?noop=true&amp;include=.*\.xml"/>
+        <!-- <setHeader headerName="ExecBinding.EXEC_COMMAND_OUT_FILE"><simple>${file:parent}/${file:name.noext}_ehriID.xml</simple></setHeader>-->
+        <!-- <setHeader headerName="ExecBinding.EXEC_COMMAND_ARGS"><simple></simple></setHeader> -->
+<!--         <to uri="exec:java?args=-jar /Users/ben/Applications/add_ehri_ids_to_nodes-0.9-jar-with-dependencies.jar" /> -->
+<!--         <convertBodyTo type="String"><description>The output of exec is an object of the ExecResult type. The next step needs something else.</description></convertBodyTo> -->
+        <transform><xpath>//ead</xpath></transform>
+        <log message="Processing ${file:name}..."></log>
+        
+<!--         <to uri="activemq:queue:ehri-0"/> -->
+        <to uri="file:///Users/ben/Documents/Projecten/EHRI/camel-wiener1"/>
+        <!-- 
+<multicast>
+            <to uri="file:///Users/ben/Documents/Projecten/EHRI/camel-wiener"/>
+            <to uri="activemq:queue:ehri-log"/>
+        </multicast>  
+ -->      
+      </route>
+
+      <route id="log-to-xmpp">
+        <from uri="activemq:queue:ehri-log"/>
+        <transform><xpath>//archdesc/did/unittitle</xpath></transform>
+        <to ref="ehribot"/>
+      </route>
+
+      <route id="convert-extref">
+
+        <from uri="file:///Users/ben/Documents/Projecten/EHRI/camel-wiener1"/>
+        
+        <to uri="xslt:file:///Users/ben/git/bencomp/ehri-ead-preprocessing/convert-extref/convert-extref.xsl?saxon=true"/>
+
+        <to uri="file:///Users/ben/Documents/Projecten/EHRI/camel-wiener2"/>
+      </route>
+
+      <route id="convert-emph">
+
+        <from uri="file:///Users/ben/Documents/Projecten/EHRI/camel-wiener2"/>
+        <to uri="xslt:file:///Users/ben/git/bencomp/ehri-ead-preprocessing/convert-emph/convert-emph.xsl?saxon=true"/>
+
+        <to uri="file:///Users/ben/Documents/Projecten/EHRI/camel-wiener3"/>
+      </route>
+
+      <route id="log-unittitle-to-xmpp">
+
+        <from uri="file:///Users/ben/Documents/Projecten/EHRI/camel-wiener3"/>
+        <transform><xpath>//archdesc/did/unittitle/text()</xpath></transform>
+        <to ref="ehribot"/>
+      </route>
+    </camelContext>
+
+    <!-- 
+<reference id="connectionFactory" interface="javax.jms.ConnectionFactory" />
+    <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+        <property name="brokerURL" value="tcp://localhost:61616"/>
+    	<property name="userName" value="smx"/>
+    	<property name="password" value="smx"/>
+    </bean>
+ -->
+
+</blueprint>
