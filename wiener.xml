@@ -26,7 +26,6 @@
         <from uri="file:///opt/webapps/data/camel/wiener1?delete=true"/>
         <log message="Transforming external links to Markdown in ${file:name}..."/>
         <to uri="xslt:file:///opt/webapps/ehri-ead-preprocessing/convert-extref/convert-extref.xsl?saxon=true"/>
-
         <to uri="file:///opt/webapps/data/camel/wiener2"/>
       </route>
 
@@ -35,7 +34,6 @@
         <from uri="file:///opt/webapps/data/camel/wiener2?delete=true"/>
         <log message="Transforming emphasis to Markdown in ${file:name}..."/>
         <to uri="xslt:file:///opt/webapps/ehri-ead-preprocessing/convert-emph/convert-emph.xsl?saxon=true"/>
-
         <to uri="file:///opt/webapps/data/camel/wiener3"/>
       </route>
 
