@@ -10,43 +10,42 @@
     http://camel.apache.org/schema/blueprint 
     http://camel.apache.org/schema/blueprint/camel-blueprint.xsd" id="ehri">
     
-      <endpoint id="ehribot" uri="xmpp:bot@localhost/?room=troep@conference.ben&amp;serviceName=ben&amp;nickname=ehriBot&amp;password=clerics481&quot;Turin&amp;resource=EHRI-queue" />
       <route id="unwrap">
-        <from uri="file:///Users/ben/Applications/repox/repoxData/export/wienerlib?noop=true&amp;include=.*\.xml"/>
+        <from uri="file:///opt/webapps/data/repoxData/export/wienerlib?noop=true&amp;include=.*\.xml"/>
         <transform><xpath>//ead</xpath></transform>
-        <log message="Unwrapping ${file:name}..."></log>
+        <log message="Unwrapping ${file:name}..."/>
         
-        <to uri="file:///Users/ben/Documents/Projecten/EHRI/camel-wiener1"/>
-      </route>
-
-      <route id="log-to-xmpp">
-        <from uri="activemq:queue:ehri-log"/>
-        <transform><xpath>//archdesc/did/unittitle</xpath></transform>
-        <to ref="ehribot"/>
+        <to uri="file:///opt/webapps/data/camel/wiener1"/>
       </route>
 
       <route id="convert-extref">
 
-        <from uri="file:///Users/ben/Documents/Projecten/EHRI/camel-wiener1"/>
-        
-        <to uri="xslt:file:///Users/ben/git/bencomp/ehri-ead-preprocessing/convert-extref/convert-extref.xsl?saxon=true"/>
+        <from uri="file:///opt/webapps/data/camel/wiener1"/>
+        <log message="Transforming external links to Markdown in ${file:name}..."/>
+        <to uri="xslt:file:///opt/webapps/ehri-ead-preprocessing/convert-extref/convert-extref.xsl?saxon=true"/>
 
-        <to uri="file:///Users/ben/Documents/Projecten/EHRI/camel-wiener2"/>
+        <to uri="file:///opt/webapps/data/camel/wiener2"/>
       </route>
 
       <route id="convert-emph">
 
-        <from uri="file:///Users/ben/Documents/Projecten/EHRI/camel-wiener2"/>
-        <to uri="xslt:file:///Users/ben/git/bencomp/ehri-ead-preprocessing/convert-emph/convert-emph.xsl?saxon=true"/>
+        <from uri="file:///opt/webapps/data/camel/wiener2"/>
+        <log message="Transforming emphasis to Markdown in ${file:name}..."/>
+        <to uri="xslt:file:///opt/webapps/ehri-ead-preprocessing/convert-emph/convert-emph.xsl?saxon=true"/>
 
-        <to uri="file:///Users/ben/Documents/Projecten/EHRI/camel-wiener3"/>
+        <to uri="file:///opt/webapps/data/camel/wiener3"/>
       </route>
 
-      <route id="log-unittitle-to-xmpp">
+      <route id="move-to-import">
 
-        <from uri="file:///Users/ben/Documents/Projecten/EHRI/camel-wiener3"/>
-        <transform><xpath>//archdesc/did/unittitle/text()</xpath></transform>
-        <to ref="ehribot"/>
+        <from uri="file:///opt/webapps/data/camel/wiener3"/>
+        <setHeader headerName="CamelFileName">
+            <xquery>let $header := //eadid
+            return fn:concat($header/@countrycode, "/", $header/@mainagencycode, "/", $header/text(), ".xml")
+            </xquery>
+        </setHeader>
+        <log message="Moving ${file:name} to import..."/>
+        <to uri="file:///opt/webapps/data/import-data/"/>
       </route>
     </camelContext>
 
