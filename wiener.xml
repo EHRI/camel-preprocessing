@@ -8,14 +8,17 @@
 
     <camelContext xmlns="http://camel.apache.org/schema/blueprint" xsi:schemaLocation="
     http://camel.apache.org/schema/blueprint
-    http://camel.apache.org/schema/blueprint/camel-blueprint.xsd" id="ehri">
+    http://camel.apache.org/schema/blueprint/camel-blueprint.xsd" id="ehri-wiener-library">
 
       <route id="unwrap">
         <from uri="file:///opt/webapps/data/repoxData/export/wienerlib?noop=true&amp;include=.*\.xml"/>
-        <transform><xpath>//ead</xpath></transform>
-        <log message="Unwrapping ${file:name}..."/>
 
-        <to uri="file:///opt/webapps/data/camel/wiener1"/>
+        <filter>
+            <xpath>//ead</xpath>
+            <transform><xpath>//ead</xpath></transform>
+            <log message="Unwrapping ${file:name}..."/>
+            <to uri="file:///opt/webapps/data/camel/wiener1"/>
+        </filter>
       </route>
 
       <route id="convert-extref">
