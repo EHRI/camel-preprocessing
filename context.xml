@@ -13,21 +13,10 @@
       <endpoint id="ehribot" uri="xmpp:bot@localhost/?room=troep@conference.ben&amp;serviceName=ben&amp;nickname=ehriBot&amp;password=clerics481&quot;Turin&amp;resource=EHRI-queue" />
       <route id="unwrap">
         <from uri="file:///Users/ben/Applications/repox/repoxData/export/wienerlib?noop=true&amp;include=.*\.xml"/>
-        <!-- <setHeader headerName="ExecBinding.EXEC_COMMAND_OUT_FILE"><simple>${file:parent}/${file:name.noext}_ehriID.xml</simple></setHeader>-->
-        <!-- <setHeader headerName="ExecBinding.EXEC_COMMAND_ARGS"><simple></simple></setHeader> -->
-<!--         <to uri="exec:java?args=-jar /Users/ben/Applications/add_ehri_ids_to_nodes-0.9-jar-with-dependencies.jar" /> -->
-<!--         <convertBodyTo type="String"><description>The output of exec is an object of the ExecResult type. The next step needs something else.</description></convertBodyTo> -->
         <transform><xpath>//ead</xpath></transform>
-        <log message="Processing ${file:name}..."></log>
+        <log message="Unwrapping ${file:name}..."></log>
         
-<!--         <to uri="activemq:queue:ehri-0"/> -->
         <to uri="file:///Users/ben/Documents/Projecten/EHRI/camel-wiener1"/>
-        <!-- 
-<multicast>
-            <to uri="file:///Users/ben/Documents/Projecten/EHRI/camel-wiener"/>
-            <to uri="activemq:queue:ehri-log"/>
-        </multicast>  
- -->      
       </route>
 
       <route id="log-to-xmpp">
@@ -61,13 +50,5 @@
       </route>
     </camelContext>
 
-    <!-- 
-<reference id="connectionFactory" interface="javax.jms.ConnectionFactory" />
-    <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
-        <property name="brokerURL" value="tcp://localhost:61616"/>
-    	<property name="userName" value="smx"/>
-    	<property name="password" value="smx"/>
-    </bean>
- -->
 
 </blueprint>
