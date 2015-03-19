@@ -41,9 +41,9 @@
 
         <from uri="file:///opt/webapps/data/camel/wiener3?delete=true"/>
         <setHeader headerName="CamelFileName">
-            <xquery>let $header := //eadid
-            let $eadid := fn:replace(fn:normalize-space($header/string()), "\p{Zs}", "_")
-            return fn:concat($header/@countrycode, "/", $header/@mainagencycode, "/", $eadid, ".xml")
+            <xquery type="java.lang.String">let $eadid := //eadid
+            let $eadidt := fn:replace(fn:normalize-space($eadid/string()), "\p{Zs}", "_")
+            return fn:concat($eadid/@countrycode, "/", $eadid/@mainagencycode, "/", $eadidt, ".xml")
             </xquery>
         </setHeader>
         <log message="Moving ${file:name} to import..."/>
