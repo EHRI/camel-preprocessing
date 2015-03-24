@@ -70,7 +70,8 @@
         </setHeader>
         <setHeader headerName="Authorization"><constant>benc</constant></setHeader>
         <setHeader headerName="Exchange.CONTENT_TYPE"><constant>application/xml</constant></setHeader>
-        <throttle maximumRequestsPerPeriod="1" timePeriodMillis="1000">
+        <throttle timePeriodMillis="1000">
+            <constant>2</constant>
             <to uri="http://localhost:7474/bogus_uri"/>
         </throttle>
 
