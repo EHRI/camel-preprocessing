@@ -11,8 +11,10 @@
     http://camel.apache.org/schema/blueprint/camel-blueprint.xsd" id="ehri-wiener-library">
 
       <route id="unwrap">
-        <from uri="file:///opt/webapps/data/repoxData/export/wienerlib?noop=true&amp;include=.*\.xml"/>
-
+        <from uri="file:///opt/webapps/data/repoxData/export/gb-003348?noop=true&amp;include=.*\.xml"/>
+        <setHeader headerName="EHRI.scopeId"><constant>gb-003348</constant></setHeader>
+        <setHeader headerName="EHRI.logMessage"><constant>This file was last harvested by EHRI on 2015-03-18.</constant></setHeader>
+        <setHeader headerName="EHRI.properties"><constant>/opt/webapps/import-data/properties/wienerlib.properties</constant></setHeader>
         <filter>
             <xpath>//ead</xpath>
             <transform><xpath>//ead</xpath></transform>
@@ -37,9 +39,17 @@
         <to uri="file:///opt/webapps/data/camel/wiener3"/>
       </route>
 
-      <route id="move-to-import">
+      <route id="convert-persname">
 
         <from uri="file:///opt/webapps/data/camel/wiener3?delete=true"/>
+        <log message="Removing persname fake emphasis in ${file:name}..."/>
+        <to uri="xslt:file:///opt/webapps/ehri-ead-preprocessing/chi-specific/wiener-library/wiener-emph.xsl?saxon=true"/>
+        <to uri="file:///opt/webapps/data/camel/wiener4"/>
+      </route>
+
+      <route id="move-to-import">
+
+        <from uri="file:///opt/webapps/data/camel/wiener4?delete=true"/>
         <setHeader headerName="CamelFileName">
             <xquery type="java.lang.String">let $eadid := //eadid
             let $eadidt := fn:replace(fn:normalize-space($eadid/string()), "\p{Zs}", "_")
@@ -48,6 +58,22 @@
         </setHeader>
         <log message="Moving ${file:name} to import..."/>
         <to uri="file:///opt/webapps/data/import-data/"/>
+      </route>
+
+      <route id="import-files">
+
+        <from uri="file:///opt/webapps/data/import-data/?recursive=true&amp;noop=true"/>
+        <log message="Importing ${file:name}..."/>
+        <setHeader headerName="Exchange.HTTP_METHOD"><constant>POST</constant></setHeader>
+        <setHeader headerName="Exchange.HTTP_URI">
+            <simple>http://localhost:7474/ehri/import/single_ead?scope=${header[EHRI.scopeId]}&amp;log=${header[EHRI.logMessage]}&amp;properties=${header[EHRI.properties]}</simple>
+        </setHeader>
+        <setHeader headerName="Authorization"><constant>benc</constant></setHeader>
+        <setHeader headerName="Exchange.CONTENT_TYPE"><constant>application/xml</constant></setHeader>
+        <throttle maximumRequestsPerPeriod="1" timePeriodMillis="1000">
+            <to uri="http://localhost:7474/bogus_uri"/>
+        </throttle>
+
       </route>
     </camelContext>
 
