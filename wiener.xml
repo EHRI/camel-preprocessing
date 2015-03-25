@@ -59,7 +59,7 @@
 
       <route id="import-files">
 
-        <from uri="file:///opt/webapps/data/import-data/?recursive=true&amp;noop=true"/>
+        <from uri="file:///opt/webapps/data/import-data/?recursive=true&amp;noop=true&idempotentKey=${file:name}-${date:file:yyyyMMddHHss}"/>
         <log message="Importing ${file:name}..."/>
         <setHeader headerName="EHRI.scopeId"><constant>gb-003348</constant></setHeader>
         <setHeader headerName="EHRI.logMessage"><constant>This file was last harvested by EHRI on 2015-03-18.</constant></setHeader>
