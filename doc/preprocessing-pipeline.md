@@ -46,6 +46,8 @@ REPOX is currently maintained by [Europeana][europeana], who use it in the infra
 REPOX has a web interface and a REST interface to manage the (minimal) administrative information about data providers and mostly technical information about the data sets they provide.
 REPOX can ingest records on demand, or following a schedule. Similarly, exporting the records to a folder on the file system can happen on demand or following a schedule.
 
+![Repository information in REPOX (screen shot)](repox1.png)
+
 # Preprocessing
 
 EHRI has produced [various preprocessing tools][ead-pre] to normalise or even correct ingested records. These tools should be used before importing the data into the database using the importer tools, because the importer tools have requirements that not all records adhere to.
